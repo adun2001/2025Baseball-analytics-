@@ -7,7 +7,7 @@ library(lubridate)
 library(stringr)
 library(tidyr)
 
-path <- "C:/Users/User/OneDrive/文件/MLB逐場.xlsx"
+path <- "D:/User/Downloads/MLB_2024.xlsx"
 
 raw <- read_excel(path, sheet = 1)
 
@@ -16,13 +16,13 @@ df <- raw %>%
     filter(狀態 %in% c("勝","敗")) %>%
     mutate(order_id = row_number(),
            date_mmdd = stringr::str_extract(日期, "\\d{1,2}/\\d{1,2}"),
-           date_key  = as.Date(paste0("2025/", date_mmdd), format = "%Y/%m/%d"))
+           date_key  = as.Date(paste0("2024/", date_mmdd), format = "%Y/%m/%d"))
 
 df <- df %>%
     mutate(
       date_mmdd = str_extract(日期, "\\d{2}/\\d{2}"),
       # 用虛擬年份做可比較日期；年份不影響相對順序
-      date_key  = as.Date(paste0("2025/", date_mmdd), format = "%Y/%m/%d")
+        date_key  = as.Date(paste0("2024/", date_mmdd), format = "%Y/%m/%d")
     )
   
 df <- df %>%
@@ -58,11 +58,11 @@ readr::write_excel_csv(out, "2024_colley_input_sorted.csv")
   
 
 
-dat <- read_csv("2025_colley_input_sorted.csv", show_col_types = FALSE) %>%
+dat <- read_csv("2024_colley_input_sorted.csv", show_col_types = FALSE) %>%
   mutate(
     winner   = str_squish(winner),
     loser    = str_squish(loser),
-    date_key = as.Date(paste0("2025/", date_mmdd), format="%Y/%m/%d")
+    date_key = as.Date(paste0("2024", date_mmdd), format="%Y/%m/%d")
   ) %>%
   arrange(date_key, seq_id)
 
@@ -123,11 +123,12 @@ if (!exists("ratings_daily_true")) {
 }
 
 cut_dates <- as.Date(c(
-  "2025-04-01", "2025-04-08", "2025-04-15", "2025-04-22", "2025-04-29",
-  "2025-05-06", "2025-05-13", "2025-05-20", "2025-05-27", "2025-06-03",
-  "2025-06-10", "2025-06-17", "2025-06-24", "2025-07-01", "2025-07-08",
-  "2025-07-19", "2025-07-26", "2025-08-02", "2025-08-09", "2025-08-16",
-  "2025-08-23", "2025-08-30", "2025-09-06", "2025-09-13", "2025-09-20", "2025-09-27"
+  "2024-04-05", "2024-04-10", "2024-04-15", "2024-04-20", "2024-04-25", "2024-04-30",
+  "2024-05-05", "2024-05-10", "2024-05-15", "2024-05-20", "2024-05-25", "2024-05-30",
+  "2024-06-05", "2024-06-10", "2024-06-15", "2024-06-20", "2024-06-25", "2024-06-30",
+  "2024-07-05", "2024-07-10", "2024-07-15", "2024-07-20", "2024-07-25", "2024-07-30",
+  "2024-08-05", "2024-08-10", "2024-08-15", "2024-08-20", "2024-08-25", "2024-08-30", 
+  "2024-09-05", "2024-09-10", "2024-09-15", "2024-09-20", "2024-09-25", "2024-09-30"
 ))
 
 # 對每個 cut_date 取「<= 該日的最後一天」
@@ -221,6 +222,21 @@ p_hi_cut <- ggplot() +
   theme_minimal()
 
 print(p_hi_cut)
+
+
+if (!exists("ratings_daily_true")) {
+  ratings_daily_true <- readr::read_csv("2024_colley_daily_true_long.csv",
+                                        show_col_types = FALSE)
+}
+
+# === 讀逐場清單（算一般勝率用） ===
+dat <- readr::read_csv("2024_colley_input_sorted.csv", show_col_types = FALSE) %>%
+  mutate(
+    winner   = str_squish(winner),
+    loser    = str_squish(loser),
+    date     = as.Date(paste0("2024/", date_mmdd), "%Y/%m/%d")
+  ) %>%
+  arrange(date, seq_id)
 
 # === 選擇球隊 ===
 one_team <- "守護者"     # 換成你要看的球隊
@@ -499,7 +515,7 @@ df <- raw %>%
   filter(狀態 %in% c("勝","敗")) %>%
   mutate(order_id = row_number(),
          date_mmdd = stringr::str_extract(日期, "\\d{1,2}/\\d{1,2}"),
-         date_key  = as.Date(paste0("2025/", date_mmdd), format = "%Y/%m/%d"))
+         date_key  = as.Date(paste0("2024/", date_mmdd), format = "%Y/%m/%d"))
 
 # 檢查是否還有 NA 日期
 sum(is.na(df$date_key))
@@ -510,7 +526,7 @@ df %>% filter(is.na(date_key)) %>% count(日期, sort=TRUE) %>% print(n=30)
 df <- df %>%
   mutate(
     date_mmdd = str_extract(日期, "\\d{2}/\\d{2}"),
-    date_key  = as.Date(paste0("2025/", date_mmdd), format = "%Y/%m/%d")
+    date_key  = as.Date(paste0("2024/", date_mmdd), format = "%Y/%m/%d")
   )
 
 # 去除重複對戰紀錄
@@ -559,7 +575,7 @@ dat <- readr::read_csv("colley_input_sorted.csv", show_col_types = FALSE) %>%
     # 去除隊名空白與奇怪字元
     winner = str_squish(winner),
     loser  = str_squish(loser),
-    date_key = as.Date(paste0("2025/", date_mmdd), format = "%Y/%m/%d")
+    date_key = as.Date(paste0("2024/", date_mmdd), format = "%Y/%m/%d")
   ) %>%
   arrange(date_key, seq_id)
 dat %>% count(date_key) %>% arrange(date_key) %>% print(n=Inf)
@@ -600,7 +616,7 @@ elo_long <- ratings_wl %>%
 
 
 # 若某隊那天沒比賽，用「截至該日最近 Elo」
-# target_date <- as.Date("2025-09-29")
+# target_date <- as.Date("2024-09-29")
 # elo_latest <- elo_long %>% filter(date <= target_date) %>%
 #   group_by(team) %>% slice_max(order_by = date, n = 1, with_ties = FALSE) %>% ungroup()
 
@@ -1175,12 +1191,12 @@ all_teams <- sort(unique(c(dat$winner, dat$loser)))
 
 # 以「有比賽的不同日期」為基準，每 5 天一個斷點
 cut_dates <- as.Date(c(
-  "2025-04-05", "2025-04-10", "2025-04-15", "2025-04-20", "2025-04-25", "2025-04-30",
-  "2025-05-05", "2025-05-10", "2025-05-15", "2025-05-20", "2025-05-25", "2025-05-30",
-  "2025-06-05", "2025-06-10", "2025-06-15", "2025-06-20", "2025-06-25", "2025-06-30",
-  "2025-07-05", "2025-07-10", "2025-07-15", "2025-07-20", "2025-07-25", "2025-07-30",
-  "2025-08-05", "2025-08-10", "2025-08-15", "2025-08-20", "2025-08-25", "2025-08-30", 
-  "2025-09-05", "2025-09-10", "2025-09-15", "2025-09-20", "2025-09-25", "2025-09-30"
+  "2024-04-05", "2024-04-10", "2024-04-15", "2024-04-20", "2024-04-25", "2024-04-30",
+  "2024-05-05", "2024-05-10", "2024-05-15", "2024-05-20", "2024-05-25", "2024-05-30",
+  "2024-06-05", "2024-06-10", "2024-06-15", "2024-06-20", "2024-06-25", "2024-06-30",
+  "2024-07-05", "2024-07-10", "2024-07-15", "2024-07-20", "2024-07-25", "2024-07-30",
+  "2024-08-05", "2024-08-10", "2024-08-15", "2024-08-20", "2024-08-25", "2024-08-30", 
+  "2024-09-05", "2024-09-10", "2024-09-15", "2024-09-20", "2024-09-25", "2024-09-30"
 ))
 
 # 從 joint_additive 的輸出中抓「各隊最後 Elo」
@@ -1388,16 +1404,16 @@ pressure_by_cut <- map_dfr(cut_dates, ~pressure_at_cutoff(.x, df, all_teams))
 elo_final <- pressure_by_cut %>%
   left_join(elo_combined, by = c("team" = "team", "cut_date" = "cut_date"))
 
-path <- "C:/Users/USER/Desktop/2025_colley.csv"
-colley_2025 <- read_csv(path)
+path <- "C:/Users/USER/Desktop/2024_colley.csv"
+colley_2024 <- read_csv(path)
 
-colley_2025$cut_date <- as.Date(colley_2025$cut_date)
+colley_2024$cut_date <- as.Date(colley_2024$cut_date)
 elo_final$cut_date <- as.Date(elo_final$cut_date)
 
-elo_final2025 <- colley_2025 %>%
+elo_final2024 <- colley_2024 %>%
   left_join(elo_final, by = c("team" = "team", "cut_date" = "cut_date"))
 
-elo_finnaall <- elo_final2025 %>% select("cut_date", "team", "total_games", "total_wins",
+elo_finnaall <- elo_final2024 %>% select("cut_date", "team", "total_games", "total_wins",
                                          "winp", "rating", "elo", "movelo", "luck_wins", "unluck_lose",
                                          "luck_winp", "unluck_losep", "home_games", "home_percent",
                                          everything()) 
@@ -1426,17 +1442,17 @@ elo_lm <- elo_finnaall %>%
   left_join(final_winp, by = c("team" = "team"))
 
 train_dates <- as.Date(c(
-  "2025-04-05", "2025-04-10", "2025-04-15", "2025-04-20", "2025-04-25",
-  "2025-05-05", "2025-05-10", "2025-05-15", "2025-05-20", "2025-05-25", 
-  "2025-06-05", "2025-06-10", "2025-06-15", "2025-06-20", "2025-06-25",
-  "2025-07-05", "2025-07-10", "2025-07-15", "2025-07-20", "2025-07-25", 
-  "2025-08-05", "2025-08-10", "2025-08-15", "2025-08-20", "2025-08-25", 
-  "2025-09-05", "2025-09-10", "2025-09-15", "2025-09-20", "2025-09-25"
+  "2024-04-05", "2024-04-10", "2024-04-15", "2024-04-20", "2024-04-25",
+  "2024-05-05", "2024-05-10", "2024-05-15", "2024-05-20", "2024-05-25", 
+  "2024-06-05", "2024-06-10", "2024-06-15", "2024-06-20", "2024-06-25",
+  "2024-07-05", "2024-07-10", "2024-07-15", "2024-07-20", "2024-07-25", 
+  "2024-08-05", "2024-08-10", "2024-08-15", "2024-08-20", "2024-08-25", 
+  "2024-09-05", "2024-09-10", "2024-09-15", "2024-09-20", "2024-09-25"
 ))
 
 test_dates <- as.Date(c(
-  "2025-04-30", "2025-05-30", "2025-06-30", 
-  "2025-07-30", "2025-08-30", "2025-09-30"
+  "2024-04-30", "2024-05-30", "2024-06-30", 
+  "2024-07-30", "2024-08-30", "2024-09-30"
 ))
 
 elo_train <- elo_lm %>%
@@ -1490,7 +1506,7 @@ eval_lm_by_cut <- function(train_df,
   
   results <- purrr::map_df(test_dates, function(td) {
     
-    # 抓出「年-月」字串，例如 "2025-04"
+    # 抓出「年-月」字串，例如 "2024-04"
     ym <- format(td, "%Y-%m")
     
     # 訓練集：同一個年-月的所有 cut_date
